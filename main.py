@@ -4,7 +4,8 @@ A Python installer for Windows.
 """
 
 import tkinter as tk
-from tkinter import messagebox, scrolledtext
+from tkinter import messagebox, scrolledtext, filedialog
+import os
 
 EXECUTABLE = ".exe"     # the executable file (*.exe)
 FILES = ()              # other files (conf, icon, other *.exe...)
@@ -13,6 +14,8 @@ TEXT_INSTALL = {        # set your text for installer
     "info":"Information about app.",
     "license":"Information about license."
 }
+
+APP_NAME = "app name"
 
 UPDATE_TIME = 100
 
@@ -55,17 +58,117 @@ class Trad:
         "fr":"Acepter"
     }
 
+    T007 = {
+        "fr":"Paramètres :",
+        "en":"Setting:"
+    }
+
+    T008 = {
+        "fr":"Ajouter au bureau",
+        "en":"Add to desktop"
+    }
+
+    T009 = {
+        "fr":"Ajouter au path",
+        "en":"Add to path"
+    }
+
+    T010 = {
+        "fr":"Dossier d'instalation :",
+        "en":"Installation folder:"
+    }
+
+    T011 = {
+        "fr":"📂 Ouvrir",
+        "en":"📂 Open"
+    }
+
+    T012 = {
+        "fr":"Erreur",
+        "en":"Error"
+    }
+
+    T013 = {
+        "fr":"Le chemain spécifier est vide.",
+        "en":"The specified path is empty."
+    }
+
+
 
 bool_agree = None
 button_next_1 = None
+add_desktop = None
+add_path = None
+
+
+path_copy = os.path.join(os.environ["LOCALAPPDATA"], APP_NAME)
+
+def step_3() -> None:
+    """Configure the frame for step_3"""
+    step[2].destroy()
+
+    step[3].configure()
+    step[3].pack(fill="both", expand=True)
 
 def step_2() -> None:
     """Configure the frame for step_2"""
+    def start_next() -> None:
+        """Call step_3."""
+        path = entry_path.get()
+
+        if path:
+            global path_copy
+            path_copy = path
+            step_3()
+        
+        else:
+            messagebox.showerror(Trad.T012[language], Trad.T013[language])
+
+    def select_folder() -> None:
+        """Set the the Entry for path the celected folder by user (with filedialog)."""
+        path = filedialog.askdirectory(initialdir=path_copy)
+
+        if path:
+            entry_path.delete(0, tk.END)
+            entry_path.insert(0, path)
+
+
+    global add_desktop, add_path
     step[1].destroy()
+
+    step[2].configure(text=Trad.T007[language])
+    step[2].pack(expand=True, fill="both")
+
+    frame_config = tk.Frame(step[2])
+    frame_config.grid(column=0, row=0)
+
+    add_desktop = tk.BooleanVar(step[2], value=True)
+    add_path = tk.BooleanVar(step[2], value=True)
+
+    radio_add_desktop = tk.Checkbutton(frame_config, text=Trad.T008[language], variable=add_desktop)
+    radio_add_desktop.pack(anchor="w")
+
+    radio_add_path = tk.Checkbutton(frame_config, text=Trad.T009[language], variable=add_path)
+    radio_add_path.pack(anchor="w")
+
+    frame_path = tk.LabelFrame(frame_config, text=Trad.T010[language])
+    frame_path.pack(anchor="w")
+
+    entry_path = tk.Entry(frame_path, width=50)
+    entry_path.insert(0, path_copy)
+    entry_path.grid(column=0, row=0)
+
+    button_open = tk.Button(frame_path, text=Trad.T011[language], command=select_folder)
+    button_open.grid(column=1, row=0)
+
+    button_next_2 = tk.Button(step[2], text=Trad.T003[language], command=start_next)
+    button_next_2.grid(column=1, row=1, pady=50)
+
+
 
 def step_1() -> None:
     """Configure the frame for step_1"""
-    def start_nex() -> None:
+    def start_next() -> None:
         """Call step_2 if the user have agree licence."""
         if bool_agree.get():
             step_2()
@@ -105,7 +208,7 @@ def step_1() -> None:
     agree = tk.Radiobutton(frame_agree, text=Trad.T006[language], variable=bool_agree, value=True)
     agree.pack(anchor="w")
 
-    button_next_1 = tk.Button(step[1], text=Trad.T003[language], command=start_nex)
+    button_next_1 = tk.Button(step[1], text=Trad.T003[language], command=start_next)
     button_next_1.grid(column=1, row=1)
 
     set_button()
