@@ -15,6 +15,7 @@ import winreg
 from pathlib import Path
 import pythoncom
 import pywintypes
+import locale
 
 f_info = open("intall_info.txt", mode="r", encoding="UTF-8")
 f_info_r = f_info.read()
@@ -37,7 +38,10 @@ del intall_info
 
 UPDATE_TIME = 100
 
-language = "en"
+try:
+    language = locale.getlocale()[0].split("_")[0]
+except:
+    language = "en"
 
 class Trad:
     """The translate"""
