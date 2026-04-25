@@ -16,6 +16,7 @@ from pathlib import Path
 import pythoncom
 import pywintypes
 import locale
+import ctypes
 
 f_info = open("intall_info.txt", mode="r", encoding="UTF-8")
 f_info_r = f_info.read()
@@ -145,6 +146,16 @@ class Trad:
         "fr":"Détail : {}"
     }
 
+    T020 = {
+        "en":"Error",
+        "fr":"Erreur"
+    }
+
+    T021 = {
+        "en":"An error occurred while adding to Path.",
+        "fr":"Une erreur est arrivé lors de l'ajout au Path."
+    }
+
 
 
 bool_agree = None
@@ -160,6 +171,35 @@ if hasattr(sys, "_MEIPASS"):
 
 else:
     data_path = os.path.abspath("")
+
+def add_to_user_path(folder: str) -> None:
+    folder = os.path.abspath(folder)
+
+    access = winreg.KEY_QUERY_VALUE | winreg.KEY_SET_VALUE
+    with winreg.CreateKeyEx(winreg.HKEY_CURRENT_USER, r"Environment", 0, access) as key:
+        try:
+            current_path, reg_type = winreg.QueryValueEx(key, "Path")
+        except FileNotFoundError:
+            current_path, reg_type = "", winreg.REG_EXPAND_SZ
+
+        parts = [p for p in str(current_path).split(";") if p]
+        normalized = {os.path.normcase(os.path.normpath(p)) for p in parts}
+        folder_norm = os.path.normcase(os.path.normpath(folder))
+
+        if folder_norm not in normalized:
+            new_path = ";".join(parts + [folder]) if parts else folder
+            winreg.SetValueEx(key, "Path", 0, reg_type, new_path)
+
+    # Notifie Windows qu'une variable d'environnement a changé
+    HWND_BROADCAST = 0xFFFF
+    WM_SETTINGCHANGE = 0x001A
+    SMTO_ABORTIFHUNG = 0x0002
+    result = ctypes.c_ulong()
+    ctypes.windll.user32.SendMessageTimeoutW(
+        HWND_BROADCAST, WM_SETTINGCHANGE, 0, "Environment",
+        SMTO_ABORTIFHUNG, 5000, ctypes.byref(result)
+    )
+
 
 def step_3() -> None:
     """Configure the frame for step_3"""
@@ -197,7 +237,14 @@ def step_3() -> None:
 
             finally:
                 pythoncom.CoUninitialize()
+        
+        if add_path.get():
             
+            try:
+                exe_dir = os.path.dirname(os.path.join(path, EXECUTABLE))  # dossier contenant le .exe
+                add_to_user_path(exe_dir)
+            except Exception as e:
+                messagebox.showerror(Trad.T020[language], Trad.T021[language], detail=Trad.T019[language].format(str(e)))
 
         end_copy = True
 
