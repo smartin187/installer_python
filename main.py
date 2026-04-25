@@ -10,6 +10,11 @@ import sys
 from threading import Thread
 import shutil
 from ast import literal_eval
+from win32com.client import Dispatch
+import winreg
+from pathlib import Path
+import pythoncom
+import pywintypes
 
 f_info = open("intall_info.txt", mode="r", encoding="UTF-8")
 f_info_r = f_info.read()
@@ -121,6 +126,21 @@ class Trad:
         "fr":"L'instalation est terminer."
     }
 
+    T017 = {
+        "en":"Error",
+        "fr":"Erreur"
+    }
+
+    T018 = {
+        "en":"Impossible to create shortcut on desktop.",
+        "fr":"Impossible de crée le racoursis au bureau."
+    }
+
+    T019 = {
+        "en":"Detail: {}",
+        "fr":"Détail : {}"
+    }
+
 
 
 bool_agree = None
@@ -142,7 +162,40 @@ def step_3() -> None:
     def install() -> None:
         """Copy all file."""
         nonlocal end_copy
-        shutil.unpack_archive(os.path.join(data_path, "data.zip"), os.path.join(path_copy, APP_NAME))
+
+        
+
+        path = os.path.join(path_copy, APP_NAME)
+
+        shutil.unpack_archive(os.path.join(data_path, "data.zip"), path)
+
+        if add_desktop.get():
+            registry_path = r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"
+    
+            pythoncom.CoInitialize()
+
+            try:
+                with winreg.OpenKey(winreg.HKEY_CURRENT_USER, registry_path) as key:
+                    desktop_path = winreg.QueryValueEx(key, "Desktop")[0]
+                    path_ink = Path(desktop_path)
+
+                
+                shell = Dispatch("WScript.Shell")
+                shortcut = shell.CreateShortCut(os.path.join(path_ink, APP_NAME + ".lnk"))
+                shortcut.TargetPath = os.path.join(path, EXECUTABLE)
+                shortcut.Description = TEXT_INSTALL["info"]
+                shortcut.Save()
+            
+
+            except pywintypes.com_error as e:
+                window_install.after(0, lambda: messagebox.showerror(Trad.T017[language], Trad.T018[language], detail=Trad.T019[language].format(str(e))))
+
+            except:
+                window_install.after(0, lambda: messagebox.showerror(Trad.T017[language]))
+
+            finally:
+                pythoncom.CoUninitialize()
+            
 
         end_copy = True
 
