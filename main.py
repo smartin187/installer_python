@@ -18,7 +18,13 @@ import pywintypes
 import locale
 import ctypes
 
-f_info = open("intall_info.txt", mode="r", encoding="UTF-8")
+if hasattr(sys, "_MEIPASS"):
+    data_path = os.path.abspath(sys._MEIPASS)
+
+else:
+    data_path = os.path.abspath("")
+
+f_info = open(os.path.join(data_path, "intall_info.txt"), mode="r", encoding="UTF-8")
 f_info_r = f_info.read()
 f_info.close()
 
@@ -166,11 +172,7 @@ add_path = None
 
 path_copy = os.environ["LOCALAPPDATA"]
 
-if hasattr(sys, "_MEIPASS"):
-    data_path = os.path.join(sys._MEIPASS, "chemain relatif")
 
-else:
-    data_path = os.path.abspath("")
 
 def add_to_user_path(folder: str) -> None:
     folder = os.path.abspath(folder)
@@ -429,7 +431,7 @@ text_app_name.grid(column=1, row=0, sticky="sewn")
 
 try:
     heit_image = 125
-    image = tk.PhotoImage(file="icon.png", height=heit_image, width=heit_image)
+    image = tk.PhotoImage(file=os.path.join(data_path, "icon.png"), height=heit_image, width=heit_image)
     image_label = tk.Label(step[0], image=image, height=heit_image, width=heit_image)
     image_label.grid(column=0, row=0, rowspan=3)
 except:
