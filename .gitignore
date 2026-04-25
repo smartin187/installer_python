@@ -1,3 +1,7 @@
 *.zip
 *.txt
 *.png
+
+dist/
+build/
+*.spec
