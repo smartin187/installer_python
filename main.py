@@ -9,16 +9,26 @@ import os
 import sys
 from threading import Thread
 import shutil
+from ast import literal_eval
 
-EXECUTABLE = ".exe"     # the executable file (*.exe)
-FILES = () + (EXECUTABLE,)              # other files (conf, icon, other *.exe...)
+f_info = open("intall_info.txt", mode="r", encoding="UTF-8")
+f_info_r = f_info.read()
+f_info.close()
+
+intall_info = literal_eval(f_info_r)
+
+EXECUTABLE = intall_info["EXECUTABLE_NAME"]     # the executable file (*.exe)
 
 TEXT_INSTALL = {        # set your text for installer
-    "info":"Information about app.",
-    "license":"Information about license."
+    "info":intall_info["INFO"],
+    "license":intall_info["LICENCE"]
 }
 
-APP_NAME = "app name"
+APP_NAME = intall_info["APP_NAME"]
+
+APP_SIZE = intall_info["SIZE_MO"]
+
+del intall_info
 
 UPDATE_TIME = 100
 
