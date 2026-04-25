@@ -6,9 +6,12 @@ A Python installer for Windows.
 import tkinter as tk
 from tkinter import messagebox, scrolledtext, filedialog
 import os
+import sys
+from threading import Thread
+import shutil
 
 EXECUTABLE = ".exe"     # the executable file (*.exe)
-FILES = ()              # other files (conf, icon, other *.exe...)
+FILES = () + (EXECUTABLE,)              # other files (conf, icon, other *.exe...)
 
 TEXT_INSTALL = {        # set your text for installer
     "info":"Information about app.",
@@ -93,6 +96,21 @@ class Trad:
         "en":"The specified path is empty."
     }
 
+    T014 = {
+        "fr":"Instalation",
+        "en":"Install"
+    }
+
+    T015 = {
+        "fr":"Installation en cours,\nne fermer pas la fenêtre...",
+        "en":"Insalling,\ndo not close the window..."
+    }
+
+    T016 = {
+        "en":"Installation is complete.",
+        "fr":"L'instalation est terminer."
+    }
+
 
 
 bool_agree = None
@@ -101,14 +119,57 @@ add_desktop = None
 add_path = None
 
 
-path_copy = os.path.join(os.environ["LOCALAPPDATA"], APP_NAME)
+path_copy = os.environ["LOCALAPPDATA"]
+
+if hasattr(sys, "_MEIPASS"):
+    data_path = os.path.join(sys._MEIPASS, "chemain relatif")
+
+else:
+    data_path = os.path.abspath("")
 
 def step_3() -> None:
     """Configure the frame for step_3"""
+    def install() -> None:
+        """Copy all file."""
+        nonlocal end_copy
+        shutil.unpack_archive(os.path.join(data_path, "data.zip"), os.path.join(path_copy, APP_NAME))
+
+        end_copy = True
+
+    end_copy = False
+
+    thread_copy = Thread(target=install, daemon=True)
+    thread_copy.start()
+
+    window_install.protocol("WM_DELETE_WINDOW", lambda: None)
+
     step[2].destroy()
 
-    step[3].configure()
+    def while_install() -> None:
+        """while the installation, controle if the intall have finish."""
+        if end_copy:
+            text_copy.destroy()
+
+            text_end = tk.Label(step[3], text=Trad.T016[language])
+            text_end.pack()
+
+            try:
+                tk.Label(step[3], text="✔️", fg="#00FF2F", font=("Segoe UI Emoji", 50)).pack()
+            except:pass
+
+        else:
+            window_install.after(100, while_install)
+
+
+    step[3].configure(text=Trad.T014[language])
     step[3].pack(fill="both", expand=True)
+
+    text_copy = tk.Label(step[3], text=Trad.T015[language])
+    text_copy.pack()
+
+    while_install()
+
+
 
 def step_2() -> None:
     """Configure the frame for step_2"""
