@@ -297,11 +297,14 @@ step = [tk.LabelFrame(window_install) for i in range(4)]
 
 step[0].pack(expand=True, fill="both")
 
+text_app_name = tk.Label(step[0], text=APP_NAME, font=("Arial", 50, "bold"))
+text_app_name.grid(column=0, row=0, columnspan=2, sticky="sewn")
+
 text_info = tk.Label(step[0], text=TEXT_INSTALL["info"])
-text_info.grid(column=1, row=0, sticky="sewn")
+text_info.grid(column=1, row=1, sticky="sewn")
 
 button_next = tk.Button(step[0], text=Trad.T003[language], command=step_1)
-button_next.grid(column=1, row=1, sticky="sewn")
+button_next.grid(column=1, row=2, sticky="sewn")
 
 window_install.geometry("430x200")
 window_install.resizable(False, False)
