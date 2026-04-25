@@ -285,10 +285,11 @@ def step_3() -> None:
             if not end_zip:
                 size = sum(f.stat().st_size for f in Path(abs_path).rglob('*') if f.is_file()) / 1048576
                 if not end_zip:     #double controle because end_zip is suppose to change
-                    progress_var.set(size / APP_SIZE * 90)
+                    progress_var.set(size / size_for_progress_bar)
 
             window_install.after(20, while_install)
 
+    size_for_progress_bar = APP_SIZE * 90
 
     step[3].configure(text=Trad.T014[language])
     step[3].pack(fill="both", expand=True)
@@ -424,7 +425,16 @@ step = [tk.LabelFrame(window_install) for i in range(4)]
 step[0].pack(expand=True, fill="both")
 
 text_app_name = tk.Label(step[0], text=APP_NAME, font=("Arial", 50, "bold"))
-text_app_name.grid(column=0, row=0, columnspan=2, sticky="sewn")
+text_app_name.grid(column=1, row=0, sticky="sewn")
+
+try:
+    heit_image = 125
+    image = tk.PhotoImage(file="icon.png", height=heit_image, width=heit_image)
+    image_label = tk.Label(step[0], image=image, height=heit_image, width=heit_image)
+    image_label.grid(column=0, row=0, rowspan=3)
+except:
+    pass
+
 
 text_info = tk.Label(step[0], text=TEXT_INSTALL["info"])
 text_info.grid(column=1, row=1, sticky="sewn")
@@ -434,4 +444,8 @@ button_next.grid(column=1, row=2, sticky="sewn")
 
 window_install.geometry("430x200")
 window_install.resizable(False, False)
+try:
+    window_install.iconphoto(False, image)
+except:
+    pass
 window_install.mainloop()
