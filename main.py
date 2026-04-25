@@ -163,8 +163,6 @@ def step_3() -> None:
         """Copy all file."""
         nonlocal end_copy
 
-        
-
         path = os.path.join(path_copy, APP_NAME)
 
         shutil.unpack_archive(os.path.join(data_path, "data.zip"), path)
@@ -219,6 +217,8 @@ def step_3() -> None:
             try:
                 tk.Label(step[3], text="✔️", fg="#00FF2F", font=("Segoe UI Emoji", 50)).pack()
             except:pass
+
+            window_install.protocol("WM_DELETE_WINDOW", window_install.destroy)
 
         else:
             window_install.after(100, while_install)
