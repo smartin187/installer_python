@@ -4,7 +4,7 @@ A Python installer for Windows.
 """
 
 import tkinter as tk
-from tkinter import messagebox, scrolledtext, filedialog
+from tkinter import messagebox, scrolledtext, filedialog, ttk
 import os
 import sys
 from threading import Thread
@@ -205,11 +205,15 @@ def step_3() -> None:
     """Configure the frame for step_3"""
     def install() -> None:
         """Copy all file."""
-        nonlocal end_copy
+        nonlocal end_copy, end_zip
 
         path = os.path.join(path_copy, APP_NAME)
 
         shutil.unpack_archive(os.path.join(data_path, "data.zip"), path)
+
+        end_zip = True
+
+        progress_var.set(90)
 
         if add_desktop.get():
             registry_path = r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"
@@ -238,17 +242,22 @@ def step_3() -> None:
             finally:
                 pythoncom.CoUninitialize()
         
+        progress_var.set(95)
+        
         if add_path.get():
             
             try:
-                exe_dir = os.path.dirname(os.path.join(path, EXECUTABLE))  # dossier contenant le .exe
+                exe_dir = os.path.dirname(os.path.join(path, EXECUTABLE))
                 add_to_user_path(exe_dir)
             except Exception as e:
-                messagebox.showerror(Trad.T020[language], Trad.T021[language], detail=Trad.T019[language].format(str(e)))
+                window_install.after(0, lambda: messagebox.showerror(Trad.T020[language], Trad.T021[language], detail=Trad.T019[language].format(str(e))))
+
+        progress_var.set(100)
 
         end_copy = True
 
     end_copy = False
+    end_zip = False
 
     thread_copy = Thread(target=install, daemon=True)
     thread_copy.start()
@@ -261,6 +270,7 @@ def step_3() -> None:
         """while the installation, controle if the intall have finish."""
         if end_copy:
             text_copy.destroy()
+            progress_bar.destroy()
 
             text_end = tk.Label(step[3], text=Trad.T016[language])
             text_end.pack()
@@ -272,14 +282,26 @@ def step_3() -> None:
             window_install.protocol("WM_DELETE_WINDOW", window_install.destroy)
 
         else:
-            window_install.after(100, while_install)
+            if not end_zip:
+                size = sum(f.stat().st_size for f in Path(abs_path).rglob('*') if f.is_file()) / 1048576
+                if not end_zip:     #double controle because end_zip is suppose to change
+                    progress_var.set(size / APP_SIZE * 90)
+
+            window_install.after(20, while_install)
 
 
     step[3].configure(text=Trad.T014[language])
     step[3].pack(fill="both", expand=True)
 
+    abs_path = os.path.join(path_copy, APP_NAME)
+
     text_copy = tk.Label(step[3], text=Trad.T015[language])
     text_copy.pack()
+
+    progress_var = tk.IntVar(step[3])
+
+    progress_bar = ttk.Progressbar(step[3], maximum=100, variable=progress_var, length=430)
+    progress_bar.pack(pady=20)
 
     while_install()
 
