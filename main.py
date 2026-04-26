@@ -25,25 +25,29 @@ def main() -> None:
 
     else:
         data_path = os.path.abspath("")
+    
+    try:
+        f_info = open(os.path.join(data_path, "install_info.txt"), mode="r", encoding="UTF-8")
+        f_info_r = f_info.read()
+        f_info.close()
 
-    f_info = open(os.path.join(data_path, "intall_info.txt"), mode="r", encoding="UTF-8")
-    f_info_r = f_info.read()
-    f_info.close()
+        intall_info = literal_eval(f_info_r)
 
-    intall_info = literal_eval(f_info_r)
+        EXECUTABLE = intall_info["EXECUTABLE_NAME"]     # the executable file (*.exe)
 
-    EXECUTABLE = intall_info["EXECUTABLE_NAME"]     # the executable file (*.exe)
+        TEXT_INSTALL = {        # set your text for installer
+            "info":intall_info["INFO"],
+            "license":intall_info["LICENCE"]
+        }
 
-    TEXT_INSTALL = {        # set your text for installer
-        "info":intall_info["INFO"],
-        "license":intall_info["LICENCE"]
-    }
+        APP_NAME = intall_info["APP_NAME"]
 
-    APP_NAME = intall_info["APP_NAME"]
+        APP_SIZE = intall_info["SIZE_MO"]
 
-    APP_SIZE = intall_info["SIZE_MO"]
-
-    del intall_info
+        del intall_info
+    except Exception as e:
+        messagebox.showerror("Error", "Error with file 'install_info.txt'", detail="Detail: " + str(e))
+        quit()
 
     UPDATE_TIME = 100
 
