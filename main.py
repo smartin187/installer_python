@@ -187,6 +187,11 @@ def main() -> None:
             "fr":"Ouvrir {}"
         }
 
+        T024 = {
+            "en":"Close",
+            "fr":"Fermer"
+        }
+
     bool_agree = None
     button_next_1 = None
     add_desktop = None
@@ -319,6 +324,8 @@ def main() -> None:
                 open_app = tk.Checkbutton(step[3], text=Trad.T023[language].format(APP_NAME), variable=open_app_bool)
                 open_app.pack(side="left")
 
+                
+
                 def close_install() -> None:
                     """Close the install window."""
                     if open_app_bool.get():
@@ -331,6 +338,9 @@ def main() -> None:
                     window_install.destroy()
 
                 window_install.protocol("WM_DELETE_WINDOW", close_install)
+
+                close_button = tk.Button(step[3], text=Trad.T024[language], command=close_install)
+                close_button.pack(side="right")
 
                 if install_error:
                     window_install.destroy()
