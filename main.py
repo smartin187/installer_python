@@ -482,5 +482,7 @@ def main() -> None:
         pass
     window_install.mainloop()
 
-
-main()
+try:
+    main()
+except Exception as e:
+    messagebox.showerror("Error", "Fatal error during the instalation.", detail=f"Detail: {str(e)}")
