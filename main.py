@@ -192,6 +192,26 @@ def main() -> None:
             "fr":"Fermer"
         }
 
+        T025 = {
+            "en":"Warning",
+            "fr":"Attention"
+        }
+
+        T026 = {
+            "en":"{} seems to be already installed.",
+            "fr":"{} semble déjà être installé."
+        }
+
+        T027 = {
+            "en":"By installing {}, you will update the application.\nWarning: some configuration files may be reset.\n\nDo you want to continue ?",
+            "fr":"En installant {}, vous allez mettre à jour l'application.\nAttention : des fichier de configuration peuvent être réinicialiser.\n\nVoulez vous continuer ?"
+        }
+
+        T028 = {
+            "en":"Impossible to access to application folder.\nMake sure the application is closed and try again...",
+            "fr":"Impossible d'accéder au dossier de l'application.\nVérifier que l'application est bien fermer et recommencer..."
+        }
+
     bool_agree = None
     button_next_1 = None
     add_desktop = None
@@ -238,6 +258,19 @@ def main() -> None:
             nonlocal end_copy, end_zip, install_error
 
             path = os.path.join(path_copy, APP_NAME)
+
+            if os.path.isdir(path):
+                if messagebox.askokcancel(Trad.T025[language], Trad.T026[language].format(APP_NAME), detail=Trad.T027[language].format(APP_NAME)):
+                    try:
+                        shutil.rmtree(path)
+                    except Exception as e:
+                        messagebox.showerror(Trad.T020[language], Trad.T028[language])
+                        install_error = True
+                        quit()
+
+                else:
+                    install_error = True
+                    quit()
 
             try:
                 shutil.unpack_archive(os.path.join(data_path, "data.zip"), path)
