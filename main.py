@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
+import tkinter as tk
+from tkinter import messagebox, scrolledtext, filedialog, ttk
+import os
+import sys
+from threading import Thread
+import shutil
+from ast import literal_eval
+from win32com.client import Dispatch
+import winreg
+from pathlib import Path
+import pythoncom
+import pywintypes
+import locale
+import ctypes
 
 def main() -> None:
     """
     A Python installer for Windows.
     """
-
-    import tkinter as tk
-    from tkinter import messagebox, scrolledtext, filedialog, ttk
-    import os
-    import sys
-    from threading import Thread
-    import shutil
-    from ast import literal_eval
-    from win32com.client import Dispatch
-    import winreg
-    from pathlib import Path
-    import pythoncom
-    import pywintypes
-    import locale
-    import ctypes
-
     if hasattr(sys, "_MEIPASS"):
         data_path = os.path.abspath(sys._MEIPASS)
 
