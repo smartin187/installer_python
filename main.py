@@ -166,7 +166,10 @@ def main() -> None:
             "fr":"Une erreur est arrivé lors de l'ajout au Path."
         }
 
-
+        T022 = {
+            "en":"An error occurred during installation.",
+            "fr":"Une erreur est survenu durant l'instalation."
+        }
 
     bool_agree = None
     button_next_1 = None
@@ -211,59 +214,66 @@ def main() -> None:
         """Configure the frame for step_3"""
         def install() -> None:
             """Copy all file."""
-            nonlocal end_copy, end_zip
+            nonlocal end_copy, end_zip, install_error
 
             path = os.path.join(path_copy, APP_NAME)
 
-            shutil.unpack_archive(os.path.join(data_path, "data.zip"), path)
+            try:
+                shutil.unpack_archive(os.path.join(data_path, "data.zip"), path)
 
-            end_zip = True
+                end_zip = True
 
-            progress_var.set(90)
+                progress_var.set(90)
 
-            if add_desktop.get():
-                registry_path = r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"
-        
-                pythoncom.CoInitialize()
+                if add_desktop.get():
+                    registry_path = r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"
+            
+                    pythoncom.CoInitialize()
 
-                try:
-                    with winreg.OpenKey(winreg.HKEY_CURRENT_USER, registry_path) as key:
-                        desktop_path = winreg.QueryValueEx(key, "Desktop")[0]
-                        path_ink = Path(desktop_path)
+                    try:
+                        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, registry_path) as key:
+                            desktop_path = winreg.QueryValueEx(key, "Desktop")[0]
+                            path_ink = Path(desktop_path)
 
+                        
+                        shell = Dispatch("WScript.Shell")
+                        shortcut = shell.CreateShortCut(os.path.join(path_ink, APP_NAME + ".lnk"))
+                        shortcut.TargetPath = os.path.join(path, EXECUTABLE)
+                        shortcut.Description = TEXT_INSTALL["info"]
+                        shortcut.Save()
                     
-                    shell = Dispatch("WScript.Shell")
-                    shortcut = shell.CreateShortCut(os.path.join(path_ink, APP_NAME + ".lnk"))
-                    shortcut.TargetPath = os.path.join(path, EXECUTABLE)
-                    shortcut.Description = TEXT_INSTALL["info"]
-                    shortcut.Save()
+
+                    except pywintypes.com_error as e:
+                        window_install.after(0, lambda: messagebox.showerror(Trad.T017[language], Trad.T018[language], detail=Trad.T019[language].format(str(e))))
+
+                    except:
+                        window_install.after(0, lambda: messagebox.showerror(Trad.T017[language]))
+
+                    finally:
+                        pythoncom.CoUninitialize()
                 
-
-                except pywintypes.com_error as e:
-                    window_install.after(0, lambda: messagebox.showerror(Trad.T017[language], Trad.T018[language], detail=Trad.T019[language].format(str(e))))
-
-                except:
-                    window_install.after(0, lambda: messagebox.showerror(Trad.T017[language]))
-
-                finally:
-                    pythoncom.CoUninitialize()
-            
-            progress_var.set(95)
-            
-            if add_path.get():
+                progress_var.set(95)
                 
-                try:
-                    exe_dir = os.path.dirname(os.path.join(path, EXECUTABLE))
-                    add_to_user_path(exe_dir)
-                except Exception as e:
-                    window_install.after(0, lambda: messagebox.showerror(Trad.T020[language], Trad.T021[language], detail=Trad.T019[language].format(str(e))))
+                if add_path.get():
+                    
+                    try:
+                        exe_dir = os.path.dirname(os.path.join(path, EXECUTABLE))
+                        add_to_user_path(exe_dir)
+                    except Exception as e:
+                        window_install.after(0, lambda: messagebox.showerror(Trad.T020[language], Trad.T021[language], detail=Trad.T019[language].format(str(e))))
 
-            progress_var.set(100)
+                progress_var.set(100)
 
-            end_copy = True
+                end_copy = True
+            
+            except Exception as e:
+                messagebox.showerror(Trad.T020[language], Trad.T022[language], detail=Trad.T019[language].format(str(e)))
+                install_error = True
+                quit()
 
         end_copy = False
         end_zip = False
+        install_error = False
 
         thread_copy = Thread(target=install, daemon=True)
         thread_copy.start()
@@ -274,7 +284,10 @@ def main() -> None:
 
         def while_install() -> None:
             """while the installation, controle if the intall have finish."""
-            if end_copy:
+            if install_error:
+                quit()
+
+            elif end_copy:
                 text_copy.destroy()
                 progress_bar.destroy()
 
@@ -286,6 +299,9 @@ def main() -> None:
                 except:pass
 
                 window_install.protocol("WM_DELETE_WINDOW", window_install.destroy)
+
+                if install_error:
+                    window_install.destroy()
 
             else:
                 if not end_zip:
