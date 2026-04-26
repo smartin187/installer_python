@@ -1,18 +1,28 @@
 # -*- coding: utf-8 -*-
-import tkinter as tk
-from tkinter import messagebox, scrolledtext, filedialog, ttk
-import os
-import sys
-from threading import Thread
-import shutil
-from ast import literal_eval
-from win32com.client import Dispatch
-import winreg
-from pathlib import Path
-import pythoncom
-import pywintypes
-import locale
-import ctypes
+
+try:
+    import tkinter as tk
+    from tkinter import messagebox, scrolledtext, filedialog, ttk
+except Exception as e:
+    input(f"Installer is damaged.\nDetail: {str(e)}\nPress Enter for exit.")
+    quit()
+
+try:
+    import os
+    import sys
+    from threading import Thread
+    import shutil
+    from ast import literal_eval
+    from win32com.client import Dispatch
+    import winreg
+    from pathlib import Path
+    import pythoncom
+    import pywintypes
+    import locale
+    import ctypes
+except Exception as e:
+    messagebox.showerror("Error", "Installer is damaged, impossible to load module.", detail=f"Detail: {str(e)}")
+    quit()
 
 def main() -> None:
     """
