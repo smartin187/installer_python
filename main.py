@@ -181,6 +181,11 @@ def main() -> None:
             "fr":"Une erreur est survenu durant l'instalation."
         }
 
+        T023 = {
+            "en":"Open {}",
+            "fr":"Ouvrir {}"
+        }
+
     bool_agree = None
     button_next_1 = None
     add_desktop = None
@@ -308,6 +313,8 @@ def main() -> None:
                     tk.Label(step[3], text="✔️", fg="#00FF2F", font=("Segoe UI Emoji", 50)).pack()
                 except:pass
 
+
+
                 window_install.protocol("WM_DELETE_WINDOW", window_install.destroy)
 
                 if install_error:
@@ -363,7 +370,7 @@ def main() -> None:
                 entry_path.insert(0, path)
 
 
-        global add_desktop, add_path
+        nonlocal add_desktop, add_path
         step[1].destroy()
 
         step[2].configure(text=Trad.T007[language])
