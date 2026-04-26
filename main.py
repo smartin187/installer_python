@@ -20,6 +20,7 @@ try:
     import pywintypes
     import locale
     import ctypes
+    import subprocess
 except Exception as e:
     messagebox.showerror("Error", "Installer is damaged, impossible to load module.", detail=f"Detail: {str(e)}")
     quit()
@@ -313,9 +314,23 @@ def main() -> None:
                     tk.Label(step[3], text="✔️", fg="#00FF2F", font=("Segoe UI Emoji", 50)).pack()
                 except:pass
 
+                open_app_bool = tk.BooleanVar(step[3])
 
+                open_app = tk.Checkbutton(step[3], text=Trad.T023[language].format(APP_NAME), variable=open_app_bool)
+                open_app.pack(side="left")
 
-                window_install.protocol("WM_DELETE_WINDOW", window_install.destroy)
+                def close_install() -> None:
+                    """Close the install window."""
+                    if open_app_bool.get():
+                        app_dir = os.path.join(path_copy, APP_NAME)
+
+                        path = os.path.join(app_dir, EXECUTABLE)
+
+                        subprocess.Popen([path], cwd=app_dir)
+
+                    window_install.destroy()
+
+                window_install.protocol("WM_DELETE_WINDOW", close_install)
 
                 if install_error:
                     window_install.destroy()
