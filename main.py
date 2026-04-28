@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 try:
     import tkinter as tk
     from tkinter import messagebox, scrolledtext, filedialog, ttk
@@ -52,6 +51,8 @@ def main() -> None:
         APP_NAME = intall_info["APP_NAME"]
 
         APP_SIZE = intall_info["SIZE_MO"]
+
+        RUN_COMMAND = intall_info["COMMAND"]
 
         del intall_info
     except Exception as e:
@@ -277,7 +278,7 @@ def main() -> None:
 
                 end_zip = True
 
-                progress_var.set(90)
+                progress_var.set(85)
 
                 if add_desktop.get():
                     registry_path = r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"
@@ -306,7 +307,7 @@ def main() -> None:
                     finally:
                         pythoncom.CoUninitialize()
                 
-                progress_var.set(95)
+                progress_var.set(90)
                 
                 if add_path.get():
                     
@@ -315,6 +316,11 @@ def main() -> None:
                         add_to_user_path(exe_dir)
                     except Exception as e:
                         window_install.after(0, lambda: messagebox.showerror(Trad.T020[language], Trad.T021[language], detail=Trad.T019[language].format(str(e))))
+
+                progress_var.set(95)
+
+                if RUN_COMMAND:
+                    subprocess.run(RUN_COMMAND, shell=True, cwd=os.path.join(path_copy, APP_NAME), text=True, check=True)
 
                 progress_var.set(100)
 
@@ -386,7 +392,7 @@ def main() -> None:
 
                 window_install.after(20, while_install)
 
-        size_for_progress_bar = APP_SIZE * 90
+        size_for_progress_bar = APP_SIZE * 85
 
         step[3].configure(text=Trad.T014[language])
         step[3].pack(fill="both", expand=True)
