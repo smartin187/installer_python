@@ -418,7 +418,7 @@ def main() -> None:
             path = entry_path.get()
 
             if path:
-                global path_copy
+                nonlocal path_copy
                 path_copy = path
                 step_3()
             
