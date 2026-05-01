@@ -84,8 +84,8 @@ def main() -> None:
         }
 
         T003 = {
-            "en":"Next",
-            "fr":"Suivant"
+            "en":"Next     ▶",
+            "fr":"Suivant     ▶"
         }
 
         T004 = {
@@ -211,6 +211,11 @@ def main() -> None:
         T028 = {
             "en":"Impossible to access to application folder.\nMake sure the application is closed and try again...",
             "fr":"Impossible d'accéder au dossier de l'application.\nVérifier que l'application est bien fermer et recommencer..."
+        }
+
+        T029 = {
+            "en":"Install",
+            "fr":"Installer"
         }
 
     bool_agree = None
@@ -462,7 +467,7 @@ def main() -> None:
         button_open = tk.Button(frame_path, text=Trad.T011[language], command=select_folder)
         button_open.grid(column=1, row=0)
 
-        button_next_2 = tk.Button(step[2], text=Trad.T003[language], command=start_next)
+        button_next_2 = tk.Button(step[2], text=Trad.T029[language], command=start_next)
         button_next_2.grid(column=1, row=1, pady=50)
 
 
