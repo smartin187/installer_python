@@ -64,3 +64,11 @@ To do so, create the same files as for compilation, then run the Python program 
 python main.py
 ```
 
+## Wine Compatibility
+
+Wine is a software that allows you to run Windows applications on Linux without an emulator. The installer works well on Wine.
+
+If your application works on Wine and you do not distribute the application on Linux (this option remains the most recommended), your application will still be usable by Wine.
+
+
+
